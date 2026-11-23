@@ -1,6 +1,11 @@
 import type { CircuitDocument, GateNode, Wire } from "@/shared/types";
 import { getSpec } from "@/features/catalog";
 import { topologicalOrder } from "@/features/circuit";
+import {
+  publishedDefaults,
+  sanitizeSettings,
+  sanitizeVersions,
+} from "@/features/analysis/lib/defaults";
 const object = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === "object" && !Array.isArray(value);
 export function decodeDocument(text: string): CircuitDocument {
@@ -100,10 +105,38 @@ export function decodeDocument(text: string): CircuitDocument {
     targetId: String(data.targetId),
     nodes,
     wires,
+    // v1 旧存档没有 analysis 字段：沿用公布的默认代价与默认预算。
+    analysis: object(data.analysis)
+      ? sanitizeSettings(data.analysis)
+      : publishedDefaults(),
+    analysisVersions: sanitizeVersions(data.analysisVersions),
   };
+  // 预算只保留仍存在的输出；已删除的输出不再占用存档。
+  const outputIds = new Set(
+    nodes.filter((node) => node.kind === "OUTPUT").map((node) => node.id),
+  );
+  for (const nodeId of Object.keys(document.analysis.budgets))
+    if (!outputIds.has(nodeId)) delete document.analysis.budgets[nodeId];
   topologicalOrder(document);
   return document;
 }
 export function encodeDocument(document: CircuitDocument): string {
-  return JSON.stringify(document, null, 2);
+  const outputIds = new Set(
+    document.nodes
+      .filter((node) => node.kind === "OUTPUT")
+      .map((node) => node.id),
+  );
+  const budgets = Object.fromEntries(
+    Object.entries(document.analysis.budgets).filter(([nodeId]) =>
+      outputIds.has(nodeId),
+    ),
+  );
+  return JSON.stringify(
+    {
+      ...document,
+      analysis: { ...document.analysis, budgets },
+    },
+    null,
+    2,
+  );
 }

@@ -5,6 +5,7 @@ import { usePlacement } from "@/features/catalog";
 import { useCircuit } from "@/features/circuit";
 import { useSimulation } from "@/features/simulation";
 import { useChallenge } from "@/features/challenge";
+import { useAnalysis } from "@/features/analysis";
 import { loadInitial, useWorkspace } from "@/features/workspace";
 export function useLab() {
   const initial = loadInitial(),
@@ -19,7 +20,8 @@ export function useLab() {
   const placement = usePlacement();
   const circuit = useCircuit(document, notify);
   const simulation = useSimulation(document),
-    challenge = useChallenge(document);
+    challenge = useChallenge(document),
+    analysis = useAnalysis(document, circuit.selected);
   const workspace = useWorkspace(document, notify, () => {
     circuit.resetSelection();
     challenge.reset();
@@ -73,6 +75,7 @@ export function useLab() {
     circuit,
     simulation,
     challenge,
+    analysis,
     workspace,
     place,
     move,

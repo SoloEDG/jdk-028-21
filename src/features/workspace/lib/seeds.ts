@@ -1,9 +1,12 @@
 import type { CircuitDocument } from "@/shared/types";
+import { publishedDefaults } from "@/features/analysis/lib/defaults";
 export function sampleCircuit(): CircuitDocument {
   return {
     version: 1,
     name: "我的异或电路",
     targetId: "xor",
+    analysis: publishedDefaults(),
+    analysisVersions: [],
     nodes: [
       { id: "a", kind: "INPUT", label: "A", value: 0, x: 60, y: 120 },
       { id: "b", kind: "INPUT", label: "B", value: 0, x: 60, y: 340 },
@@ -56,6 +59,8 @@ export function emptyCircuit(): CircuitDocument {
     version: 1,
     name: "未命名实验",
     targetId: "xor",
+    analysis: publishedDefaults(),
+    analysisVersions: [],
     nodes: [],
     wires: [],
   };

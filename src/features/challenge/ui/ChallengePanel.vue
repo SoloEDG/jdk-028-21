@@ -47,17 +47,21 @@ defineEmits<{ choose: [id: string]; check: []; hint: [] }>();
     </button>
     <p
       v-if="inspected"
-      class="check-result"
+      class="check-result check-scope"
       :class="passed ? 'passed' : 'failed'"
       role="status"
     >
+      <b>目标检测</b>
       {{
         passed
-          ? "✓ 实验成功，全部输入组合通过"
+          ? "✓ 逻辑通过，全部输入组合符合目标"
           : table.error
             ? "请先完成输入和输出配置"
             : `尚有 ${table.rows.filter((r) => !r.matches).length} 种输入未通过`
       }}
+    </p>
+    <p class="scope-note">
+      目标检测只看逻辑是否正确；代价与预算结论见上方“电路代价”面板，二者互不替代。
     </p>
     <button class="text-button" @click="$emit('hint')">
       {{ hint ? "收起实验提示" : "需要一点提示？" }}

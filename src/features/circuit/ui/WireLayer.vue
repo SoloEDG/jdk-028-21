@@ -5,6 +5,7 @@ const props = defineProps<{
   document: CircuitDocument;
   signals: SimulationResult;
   selected: string | null;
+  highlighted?: Set<string>;
 }>();
 defineEmits<{ select: [id: string] }>();
 function pathFor(id: string) {
@@ -35,7 +36,10 @@ function pathFor(id: string) {
         :class="[
           'wire',
           `wire-${signals.wires[wire.id] ?? 'X'}`,
-          { 'wire-selected': selected === wire.id },
+          {
+            'wire-selected': selected === wire.id,
+            'wire-path': highlighted?.has(wire.id),
+          },
         ]" /></g
   ></g>
 </template>

@@ -9,6 +9,8 @@ const props = defineProps<{
   value: Signal;
   selected: boolean;
   pending: boolean;
+  highlighted?: boolean;
+  target?: boolean;
 }>();
 const emit = defineEmits<{
   select: [id: string];
@@ -21,7 +23,11 @@ const spec = computed(() => getSpec(props.node.kind));
 <template>
   <g
     class="gate-node"
-    :class="{ 'is-selected': selected }"
+    :class="{
+      'is-selected': selected,
+      'is-path': highlighted,
+      'is-target': target,
+    }"
     :data-node="node.id"
     role="group"
     tabindex="0"

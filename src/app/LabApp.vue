@@ -4,6 +4,7 @@ import { CatalogPanel } from "@/features/catalog";
 import { CircuitBoard } from "@/features/circuit";
 import { InputRack, SignalMonitor } from "@/features/simulation";
 import { ChallengePanel } from "@/features/challenge";
+import { AnalysisPanel } from "@/features/analysis";
 import { WorkspaceBar } from "@/features/workspace";
 import { useLab } from "./useLab";
 const lab = useLab();
@@ -13,6 +14,17 @@ const { tool } = lab.placement,
   { signals } = lab.simulation;
 const { target, table, passed, inspected, hint } = lab.challenge;
 const { status } = lab.workspace;
+const {
+  report: costReport,
+  outputs: costOutputs,
+  activeOutputId,
+  activeVersion,
+  activeVersionId,
+  comparison,
+  versions,
+  highlight,
+  fingerprint,
+} = lab.analysis;
 const selectedNode = computed(() =>
   document.value.nodes.find((node) => node.id === selected.value),
 );
@@ -85,6 +97,7 @@ onUnmounted(() => window.removeEventListener("keydown", keydown));
           :selected="selected"
           :pending="pending"
           :tool="tool"
+          :highlight="highlight"
           @place="lab.place"
           @move="lab.move"
           @select="selected = $event"
@@ -125,17 +138,39 @@ onUnmounted(() => window.removeEventListener("keydown", keydown));
           />
         </div>
       </section>
-      <ChallengePanel
-        :document="document"
-        :target="target"
-        :table="table"
-        :passed="passed"
-        :inspected="inspected"
-        :hint="hint"
-        @choose="lab.challenge.choose"
-        @check="inspected = true"
-        @hint="hint = !hint"
-      />
+      <div class="side-column">
+        <AnalysisPanel
+          :document="document"
+          :report="costReport"
+          :outputs="costOutputs"
+          :active-output-id="activeOutputId"
+          :active-version="activeVersion"
+          :active-version-id="activeVersionId"
+          :comparison="comparison"
+          :versions="versions"
+          :fingerprint="fingerprint"
+          @focus="lab.analysis.focusOutput"
+          @toggle="lab.analysis.toggleHighlight"
+          @update-budget="lab.analysis.setBudget"
+          @update-cost="lab.analysis.setCost"
+          @update-delay="lab.analysis.setDelay"
+          @reset-defaults="lab.analysis.resetDefaults"
+          @snapshot="lab.analysis.snapshot"
+          @select-version="lab.analysis.selectVersion"
+          @remove-version="lab.analysis.removeVersion"
+        />
+        <ChallengePanel
+          :document="document"
+          :target="target"
+          :table="table"
+          :passed="passed"
+          :inspected="inspected"
+          :hint="hint"
+          @choose="lab.challenge.choose"
+          @check="inspected = true"
+          @hint="hint = !hint"
+        />
+      </div>
     </main>
     <footer class="status-bar" :class="notice.tone" role="status">
       <span

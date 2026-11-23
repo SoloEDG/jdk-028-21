@@ -16,6 +16,7 @@ const props = defineProps<{
   selected: string | null;
   pending: PortRequest | null;
   tool: GateKind | null;
+  highlight?: { nodeIds: Set<string>; wireIds: Set<string>; outputId: string | null; active: boolean };
 }>();
 const emit = defineEmits<{
   place: [point: Point];
@@ -87,6 +88,7 @@ function background(event: PointerEvent) {
         :document="document"
         :signals="signals"
         :selected="selected"
+        :highlighted="highlight?.wireIds"
         @select="emit('select', $event)"
       />
       <GateNodeView
@@ -96,6 +98,8 @@ function background(event: PointerEvent) {
         :value="signals.values[node.id] ?? 'X'"
         :selected="selected === node.id"
         :pending="pending?.nodeId === node.id"
+        :highlighted="highlight?.active === true && highlight.nodeIds.has(node.id)"
+        :target="highlight?.active === true && highlight.outputId === node.id"
         @start-drag="startDrag"
         @port="emit('port', $event)"
         @toggle="emit('toggle', $event)"
